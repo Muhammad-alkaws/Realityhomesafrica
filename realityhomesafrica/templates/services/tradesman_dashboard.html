@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Tradesman Dashboard{% endblock %}
+{% block content %}
+<style>
+  .dash-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+  .dash-header h1 { font-family:'Playfair Display',serif; font-size:1.8rem; }
+  .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+  .section-card { background:var(--white); border-radius:var(--radius); padding:1.75rem; box-shadow:var(--shadow); }
+  .section-card h2 { font-family:'Playfair Display',serif; font-size:1.15rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid var(--light-gray); }
+  .portfolio-thumb-grid { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; }
+  .portfolio-thumb-grid img { width:80px; height:60px; object-fit:cover; border-radius:8px; }
+  table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th { text-align:left; padding:0.6rem 0; color:var(--gray); font-weight:600; border-bottom:2px solid var(--light-gray); }
+  td { padding:0.6rem 0; border-bottom:1px solid #f9fafb; vertical-align:middle; }
+  @media(max-width:800px){ .dash-grid { grid-template-columns:1fr; } }
+</style>
+
+<div class="dash-header">
+  <div>
+    <h1>Tradesman Dashboard</h1>
+    <p style="color:var(--gray)">Welcome, {{ user.username }}</p>
+  </div>
+  <a href="{% url 'services:tradesman_profile' profile.pk %}" class="btn btn-outline">View Public Profile</a>
+</div>
+
+<div class="dash-grid">
+  <!-- Profile Form -->
+  <div class="section-card">
+    <h2>⚙️ My Profile</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Save Profile</button>
+    </form>
+  </div>
+
+  <!-- Portfolio -->
+  <div class="section-card">
+    <h2>📸 Portfolio</h2>
+    {% if portfolio %}
+      <div class="portfolio-thumb-grid">
+        {% for item in portfolio %}
+          <img src="{{ item.image.url }}" alt="{{ item.title }}" title="{{ item.title }}">
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="color:var(--gray); font-size:0.9rem; margin-bottom:1rem;">No portfolio items yet. Add photos of your work!</p>
+    {% endif %}
+    <a href="{% url 'services:add_portfolio_item' %}" class="btn btn-gold" style="display:block; text-align:center;">+ Add Portfolio Item</a>
+  </div>
+</div>
+
+<!-- Service Requests -->
+<div class="section-card" style="margin-top:2rem;">
+  <h2>📋 Service Requests</h2>
+  {% if service_requests %}
+    <table>
+      <thead><tr><th>Client</th><th>Trade Needed</th><th>Address</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for req in service_requests %}
+        <tr>
+          <td><strong>{{ req.client.username }}</strong></td>
+          <td>{{ req.trade_needed }}</td>
+          <td style="color:var(--gray); font-size:0.82rem;">{{ req.property_address|truncatechars:40 }}</td>
+          <td>
+            {% if req.status == 'open' %}<span class="badge badge-gold">Open</span>
+            {% elif req.status == 'accepted' %}<span class="badge badge-green">Accepted</span>
+            {% else %}<span class="badge badge-gray">Completed</span>{% endif %}
+          </td>
+          <td style="color:var(--gray); font-size:0.82rem;">{{ req.created_at|date:"M j" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="color:var(--gray); text-align:center; padding:1.5rem;">No service requests yet. Make sure your profile is complete!</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}RealityHomesAfrica{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #1a5c38;
+      --green-light: #2d8653;
+      --gold: #c89b3c;
+      --cream: #faf7f2;
+      --dark: #111814;
+      --gray: #6b7280;
+      --light-gray: #f3f4f6;
+      --white: #ffffff;
+      --danger: #dc2626;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      background: var(--dark);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--gold);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--white); }
+
+    /* Hamburger (pure CSS) */
+    .nav-toggle { display: none; }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: all 0.3s;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: #d1d5db;
+      text-decoration: none;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+    .nav-links a.active { color: var(--gold); }
+
+    .nav-badge {
+      background: var(--gold);
+      color: var(--dark);
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .btn-nav {
+      background: var(--green);
+      color: var(--white) !important;
+      padding: 0.45rem 1.1rem !important;
+      border-radius: 8px !important;
+    }
+    .btn-nav:hover { background: var(--green-light) !important; }
+
+    /* ── MESSAGES / ALERTS ── */
+    .messages-container { padding: 0.75rem 2rem 0; }
+    .alert {
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+    .alert-error   { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+    .alert-info    { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+    .alert-warning { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+
+    /* ── MAIN CONTENT ── */
+    main { flex: 1; padding: 2rem; max-width: 1280px; margin: 0 auto; width: 100%; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-block;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--green); color: var(--white); }
+    .btn-primary:hover { background: var(--green-light); }
+    .btn-gold { background: var(--gold); color: var(--dark); }
+    .btn-gold:hover { background: #b8892c; }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--green);
+      color: var(--green);
+    }
+    .btn-outline:hover { background: var(--green); color: var(--white); }
+    .btn-sm { padding: 0.35rem 0.85rem; font-size: 0.8rem; }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      background: var(--white);
+      transition: border 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(26,92,56,0.1);
+    }
+    .form-error { color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      color: #9ca3af;
+      text-align: center;
+      padding: 1.5rem 2rem;
+      font-size: 0.85rem;
+    }
+    footer strong { color: var(--gold); }
+
+    /* ── UTILITIES ── */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-green  { background: #d1fae5; color: #065f46; }
+    .badge-gold   { background: #fef3c7; color: #92400e; }
+    .badge-gray   { background: #f3f4f6; color: #374151; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray);
+      line-height: 1;
+    }
+    .modal h2 { font-family: 'Playfair Display', serif; margin-bottom: 1.25rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 64px; left: 0; right: 0;
+        background: var(--dark);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0.25rem;
+        border-top: 1px solid #374151;
+      }
+      .nav-toggle:checked ~ .nav-links { display: flex; }
+      .nav-links a { width: 100%; }
+      main { padding: 1rem; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'listings:homepage' %}" class="nav-logo">Reality<span>Homes</span>Africa</a>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle" style="display:none">
+  <label for="nav-toggle" class="hamburger">
+    <span></span><span></span><span></span>
+  </label>
+
+  <ul class="nav-links">
+    <li><a href="{% url 'listings:property_list' %}">Browse</a></li>
+    <li><a href="{% url 'services:tradesman_list' %}">Tradesmen</a></li>
+
+    {% if user.is_authenticated %}
+      {% if user.is_agent %}
+        <li><a href="{% url 'listings:agent_dashboard' %}">My Listings</a></li>
+        <li><a href="{% url 'listings:agent_inspections' %}">Inspections</a></li>
+      {% elif user.is_tradesman %}
+        <li><a href="{% url 'services:tradesman_dashboard' %}">My Profile</a></li>
+      {% else %}
+        <li><a href="{% url 'listings:favorites_list' %}">Saved</a></li>
+        <li><a href="{% url 'listings:client_inspections' %}">Bookings</a></li>
+      {% endif %}
+      <li>
+        <a href="{% url 'users:inbox' %}">
+          Inbox
+          {% if unread_count > 0 %}
+            <span class="nav-badge">{{ unread_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+      <li><a href="{% url 'users:logout' %}" class="btn-nav">Logout ({{ user.username }})</a></li>
+    {% else %}
+      <li><a href="{% url 'users:login' %}">Login</a></li>
+      <li><a href="{% url 'users:choose_role' %}" class="btn-nav">Register</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  &copy; 2025 <strong>RealityHomesAfrica</strong> &mdash; Built for the African real estate market.
+</footer>
+
+</body>
+</html>

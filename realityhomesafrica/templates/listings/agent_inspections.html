@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Inspection Requests{% endblock %}
+{% block content %}
+<style>
+  .page-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+  .page-hdr h1 { font-family:'Playfair Display',serif; font-size:1.8rem; }
+  table { width:100%; border-collapse:collapse; background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+  th { background:var(--dark); color:var(--white); padding:0.9rem 1rem; text-align:left; font-size:0.85rem; }
+  td { padding:0.85rem 1rem; border-bottom:1px solid #f3f4f6; font-size:0.875rem; vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  .action-btns { display:flex; gap:0.4rem; }
+</style>
+
+<div class="page-hdr">
+  <h1>Inspection Requests</h1>
+  <a href="{% url 'listings:agent_dashboard' %}" class="btn btn-outline">← Dashboard</a>
+</div>
+
+{% if inspections %}
+<table>
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>Client</th>
+      <th>Requested Date</th>
+      <th>Message</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for insp in inspections %}
+    <tr>
+      <td><strong>{{ insp.property.title|truncatechars:30 }}</strong></td>
+      <td>
+        {{ insp.client.username }}<br>
+        <span style="color:var(--gray); font-size:0.8rem;">{{ insp.client.phone_number|default:"" }}</span>
+      </td>
+      <td>{{ insp.requested_date|date:"M j, Y H:i" }}</td>
+      <td style="color:var(--gray); font-size:0.82rem;">{{ insp.message|truncatechars:50|default:"—" }}</td>
+      <td>
+        {% if insp.status == 'pending' %}<span class="badge badge-gold">Pending</span>
+        {% elif insp.status == 'confirmed' %}<span class="badge badge-green">Confirmed</span>
+        {% elif insp.status == 'cancelled' %}<span class="badge badge-red">Cancelled</span>
+        {% else %}<span class="badge badge-gray">{{ insp.status|title }}</span>{% endif %}
+      </td>
+      <td>
+        <div class="action-btns">
+          {% if insp.status == 'pending' %}
+            <form method="post" action="{% url 'listings:confirm_inspection' insp.pk %}" style="display:inline;">
+              {% csrf_token %}<button type="submit" class="btn btn-sm btn-primary">Confirm</button>
+            </form>
+            <form method="post" action="{% url 'listings:cancel_inspection' insp.pk %}" style="display:inline;">
+              {% csrf_token %}<button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+            </form>
+          {% else %}
+            <span style="color:var(--gray); font-size:0.82rem;">No actions</span>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <div style="text-align:center; padding:3rem; background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); color:var(--gray);">
+    <div style="font-size:2.5rem; margin-bottom:0.75rem;">📅</div>
+    <p>No inspection requests yet.</p>
+  </div>
+{% endif %}
+{% endblock %}

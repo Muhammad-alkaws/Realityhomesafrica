@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Login – RealityHomesAfrica{% endblock %}
+{% block content %}
+<style>
+  .auth-wrap {
+    min-height: 70vh; display: flex; align-items: center; justify-content: center;
+  }
+  .auth-card {
+    background: var(--white); border-radius: 20px; box-shadow: var(--shadow);
+    padding: 2.5rem 2rem; width: 100%; max-width: 420px;
+  }
+  .auth-card h1 {
+    font-family: 'Playfair Display', serif; font-size: 1.9rem;
+    margin-bottom: 0.25rem;
+  }
+  .auth-card .subtitle { color: var(--gray); margin-bottom: 2rem; font-size: 0.9rem; }
+  .auth-footer { margin-top: 1.5rem; text-align: center; color: var(--gray); font-size: 0.9rem; }
+  .auth-footer a { color: var(--green); font-weight: 600; }
+  .btn-full { width: 100%; text-align: center; padding: 0.75rem; font-size: 1rem; }
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="subtitle">Login to your RealityHomesAfrica account</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" required autofocus placeholder="your username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Login</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="{% url 'users:choose_role' %}">Register here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

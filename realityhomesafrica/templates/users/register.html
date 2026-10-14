@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Register as {{ role }} – RealityHomesAfrica{% endblock %}
+{% block content %}
+<style>
+  .auth-wrap { min-height: 70vh; display: flex; align-items: center; justify-content: center; }
+  .auth-card {
+    background: var(--white); border-radius: 20px; box-shadow: var(--shadow);
+    padding: 2.5rem 2rem; width: 100%; max-width: 460px;
+  }
+  .role-tag {
+    display: inline-block; background: var(--light-gray); border-radius: 99px;
+    padding: 0.25rem 0.75rem; font-size: 0.8rem; font-weight: 700;
+    color: var(--green); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .auth-card h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; margin-bottom: 0.25rem; }
+  .auth-card .subtitle { color: var(--gray); margin-bottom: 2rem; font-size: 0.9rem; }
+  .auth-footer { margin-top: 1.5rem; text-align: center; color: var(--gray); font-size: 0.9rem; }
+  .auth-footer a { color: var(--green); font-weight: 600; }
+  .btn-full { width: 100%; text-align: center; padding: 0.75rem; font-size: 1rem; }
+  .field-errors { color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; }
+  .help-text { color: var(--gray); font-size: 0.78rem; margin-top: 0.2rem; }
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <span class="role-tag">{{ role }}</span>
+    <h1>Create your account</h1>
+    <p class="subtitle">Join thousands of Africans finding homes smarter</p>
+
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+          {% for error in field.errors %}<p class="field-errors">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+      Already registered? <a href="{% url 'users:login' %}">Log in</a> &nbsp;|&nbsp;
+      <a href="{% url 'users:choose_role' %}">Change role</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

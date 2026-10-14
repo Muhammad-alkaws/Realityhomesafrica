@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Saved Properties{% endblock %}
+{% block content %}
+<style>
+  h1 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:1.5rem; }
+  .fav-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem; }
+  .fav-card { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+  .fav-img { width:100%; height:180px; object-fit:cover; background:#d1fae5; display:flex; align-items:center; justify-content:center; font-size:2.5rem; }
+  .fav-img img { width:100%; height:180px; object-fit:cover; }
+  .fav-body { padding:1.25rem; }
+  .fav-title { font-weight:700; margin-bottom:0.25rem; }
+  .fav-city { color:var(--gray); font-size:0.85rem; margin-bottom:0.75rem; }
+  .fav-price { color:var(--green); font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:1rem; }
+  .fav-actions { display:flex; gap:0.5rem; }
+</style>
+
+<h1>❤️ Saved Properties</h1>
+
+{% if favorites %}
+<div class="fav-grid">
+  {% for fav in favorites %}
+  <div class="fav-card">
+    <div class="fav-img">
+      {% if fav.property.get_primary_image %}
+        <img src="{{ fav.property.get_primary_image }}" alt="{{ fav.property.title }}">
+      {% else %}🏠{% endif %}
+    </div>
+    <div class="fav-body">
+      <div class="fav-title">{{ fav.property.title|truncatechars:40 }}</div>
+      <div class="fav-city">📍 {{ fav.property.city }}, {{ fav.property.state }}</div>
+      <div class="fav-price">₦{{ fav.property.price|floatformat:0 }}</div>
+      <div class="fav-actions">
+        <a href="{% url 'listings:property_detail' fav.property.pk %}" class="btn btn-sm btn-primary">View</a>
+        <button class="btn btn-sm btn-danger" onclick="removeFav({{ fav.property.pk }}, this)">Remove ❤️</button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+  <div style="text-align:center; padding:3rem; background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); color:var(--gray);">
+    <div style="font-size:3rem; margin-bottom:1rem;">🤍</div>
+    <p>No saved properties yet.</p>
+    <a href="{% url 'listings:property_list' %}" class="btn btn-primary" style="margin-top:1rem;">Start Browsing</a>
+  </div>
+{% endif %}
+
+<script>
+function removeFav(propId, btn) {
+  fetch(`/property/${propId}/favorite/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.favorited) {
+      btn.closest('.fav-card').style.opacity = '0.4';
+      btn.textContent = 'Removed';
+      btn.disabled = true;
+    }
+  });
+}
+</script>
+{% endblock %}

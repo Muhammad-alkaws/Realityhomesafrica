@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile.user.username }} – Tradesman Profile{% endblock %}
+{% block content %}
+<style>
+  .profile-grid { display:grid; grid-template-columns:1fr 340px; gap:2rem; }
+  .profile-hero { background:var(--white); border-radius:var(--radius); padding:2rem; box-shadow:var(--shadow); text-align:center; margin-bottom:1.5rem; }
+  .profile-avatar { width:96px; height:96px; border-radius:50%; background:var(--green); color:var(--white); display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:700; margin:0 auto 1rem; }
+  .profile-name { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:0.25rem; }
+  .profile-trade { color:var(--green); font-weight:700; margin-bottom:0.25rem; }
+  .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:1rem; }
+  .portfolio-item { background:var(--white); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+  .portfolio-item img { width:100%; height:150px; object-fit:cover; }
+  .portfolio-caption { padding:0.75rem; font-size:0.85rem; font-weight:600; }
+  .portfolio-caption span { display:block; color:var(--gray); font-weight:400; font-size:0.78rem; }
+  .sidebar-card { background:var(--white); border-radius:var(--radius); padding:1.5rem; box-shadow:var(--shadow); }
+  .sidebar-card h3 { font-family:'Playfair Display',serif; margin-bottom:1rem; }
+  h2 { font-family:'Playfair Display',serif; font-size:1.3rem; margin:1.5rem 0 1rem; }
+  @media(max-width:860px){ .profile-grid { grid-template-columns:1fr; } }
+</style>
+
+<a href="{% url 'services:tradesman_list' %}" style="color:var(--green); font-weight:600; text-decoration:none; font-size:0.9rem; display:inline-block; margin-bottom:1.25rem;">← Back to Tradesmen</a>
+
+<div class="profile-grid">
+  <div>
+    <div class="profile-hero">
+      <div class="profile-avatar">{{ profile.user.username|slice:":1"|upper }}</div>
+      {% if profile.is_verified %}<span class="badge badge-green" style="margin-bottom:0.75rem; display:inline-block;">✅ Verified Tradesman</span>{% endif %}
+      <div class="profile-name">{{ profile.user.get_full_name|default:profile.user.username }}</div>
+      <div class="profile-trade">{{ profile.get_trade_category_display }}</div>
+      {% if profile.location_city %}<p style="color:var(--gray); font-size:0.85rem;">📍 {{ profile.location_city }}, {{ profile.location_state }}</p>{% endif %}
+      <p style="color:var(--gray); font-size:0.85rem;">{{ profile.years_experience }} years experience</p>
+      {% if profile.hourly_rate %}<p style="font-weight:700; color:var(--green); font-size:1.1rem;">₦{{ profile.hourly_rate|floatformat:0 }}/hr</p>{% endif %}
+      {% if profile.user.bio %}<p style="color:var(--gray); margin-top:0.75rem; font-size:0.9rem;">{{ profile.user.bio }}</p>{% endif %}
+    </div>
+
+    {% if portfolio %}
+    <h2>📸 Portfolio</h2>
+    <div class="portfolio-grid">
+      {% for item in portfolio %}
+      <div class="portfolio-item">
+        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+        <div class="portfolio-caption">
+          {{ item.title }}
+          {% if item.completed_date %}<span>Completed {{ item.completed_date|date:"M Y" }}</span>{% endif %}
+          {% if item.description %}<span>{{ item.description|truncatechars:60 }}</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p style="color:var(--gray); text-align:center; padding:2rem; background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow);">No portfolio items yet.</p>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="sidebar-card">
+      <h3>Request Service</h3>
+      {% if user.is_authenticated and user.is_client %}
+        <form method="post" action="{% url 'services:request_service' profile.pk %}">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-group">
+              <label>{{ field.label }}</label>
+              {{ field }}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary" style="width:100%;">Send Request</button>
+        </form>
+      {% elif not user.is_authenticated %}
+        <p style="color:var(--gray); margin-bottom:1rem; font-size:0.9rem;">Login to send a service request to this tradesman.</p>
+        <a href="{% url 'users:login' %}" class="btn btn-primary" style="width:100%; text-align:center;">Login to Request</a>
+      {% else %}
+        <p style="color:var(--gray); font-size:0.9rem;">Only clients can send service requests.</p>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+      <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #f3f4f6;">
+        <a href="{% url 'users:send_message' profile.user.pk %}" class="btn btn-outline" style="width:100%; text-align:center; display:block;">💬 Message {{ profile.user.username }}</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

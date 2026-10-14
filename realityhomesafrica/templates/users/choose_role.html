@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Join RealityHomesAfrica{% endblock %}
+{% block content %}
+<style>
+  .role-page { text-align: center; padding: 3rem 0; }
+  .role-page h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .role-page p { color: var(--gray); font-size: 1.05rem; margin-bottom: 3rem; }
+  .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 0 auto; }
+  .role-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow);
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--dark);
+    display: block;
+  }
+  .role-card:hover { border-color: var(--green); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+  .role-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .role-card h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .role-card p { color: var(--gray); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; }
+  .role-card .btn { width: 100%; text-align: center; }
+  .login-link { margin-top: 2.5rem; color: var(--gray); font-size: 0.95rem; }
+  .login-link a { color: var(--green); font-weight: 600; }
+</style>
+
+<div class="role-page">
+  <h1>Join RealityHomesAfrica</h1>
+  <p>Select your role to get started</p>
+
+  <div class="role-grid">
+    <a href="{% url 'users:register_client' %}" class="role-card">
+      <span class="role-icon">🏠</span>
+      <h2>I'm a Client</h2>
+      <p>Browse properties, schedule inspections, find tradesmen, and save your favourites.</p>
+      <span class="btn btn-outline">Register as Client</span>
+    </a>
+
+    <a href="{% url 'users:register_agent' %}" class="role-card">
+      <span class="role-icon">🏢</span>
+      <h2>I'm an Agent</h2>
+      <p>List properties, manage viewing appointments, and connect with serious buyers.</p>
+      <span class="btn btn-primary">Register as Agent</span>
+    </a>
+
+    <a href="{% url 'users:register_tradesman' %}" class="role-card">
+      <span class="role-icon">🔧</span>
+      <h2>I'm a Tradesman</h2>
+      <p>Showcase your work, get verified, and receive service requests from property clients.</p>
+      <span class="btn btn-gold">Register as Tradesman</span>
+    </a>
+  </div>
+
+  <p class="login-link">Already have an account? <a href="{% url 'users:login' %}">Log in here</a></p>
+</div>
+{% endblock %}

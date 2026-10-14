@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Property – RealityHomesAfrica{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+{% endblock %}
+{% block content %}
+<style>
+  .form-wrap { max-width: 760px; margin: 0 auto; }
+  .form-wrap h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.25rem; }
+  .form-wrap .subtitle { color: var(--gray); margin-bottom: 2rem; }
+  .form-card { background: var(--white); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+  .form-card h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--light-gray); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  #map-picker { height: 300px; border-radius: 10px; margin-bottom: 0.75rem; border: 1.5px solid #d1d5db; }
+  .map-hint { color: var(--gray); font-size: 0.82rem; margin-bottom: 0.75rem; }
+  .coords-row { display: flex; gap: 1rem; }
+  .coords-row input { flex: 1; }
+  @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+
+<div class="form-wrap">
+  <h1>{{ action }} Property Listing</h1>
+  <p class="subtitle">Fill in the details below. All fields marked required.</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Basic Info -->
+    <div class="form-card">
+      <h2>🏠 Basic Information</h2>
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" name="title" value="{{ form.title.value|default:'' }}" required placeholder="e.g. Luxury 3-Bedroom Flat in Maitama">
+      </div>
+      <div class="form-group">
+        <label>Description *</label>
+        <textarea name="description" rows="4" required placeholder="Describe the property...">{{ form.description.value|default:'' }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price (₦) *</label>
+          <input type="number" name="price" value="{{ form.price.value|default:'' }}" required placeholder="e.g. 25000000">
+        </div>
+        <div class="form-group">
+          <label>Property Type *</label>
+          <select name="property_type">
+            {% for val, label in form.fields.property_type.choices %}
+              <option value="{{ val }}" {% if form.property_type.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Bedrooms</label>
+          <input type="number" name="bedrooms" value="{{ form.bedrooms.value|default:'0' }}" min="0">
+        </div>
+        <div class="form-group">
+          <label>Bathrooms</label>
+          <input type="number" name="bathrooms" value="{{ form.bathrooms.value|default:'0' }}" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-card">
+      <h2>📍 Location</h2>
+      <div class="form-group">
+        <label>Full Address *</label>
+        <input type="text" name="address" value="{{ form.address.value|default:'' }}" required placeholder="e.g. 12 Adeola Odeku Street">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City *</label>
+          <input type="text" name="city" value="{{ form.city.value|default:'' }}" required placeholder="e.g. Abuja">
+        </div>
+        <div class="form-group">
+          <label>State *</label>
+          <select name="state">
+            {% for val, label in form.fields.state.choices %}
+              <option value="{{ val }}" {% if form.state.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Map Picker -->
+      <label style="font-weight:600; font-size:0.9rem; margin-bottom:0.4rem; display:block;">Pin Location on Map</label>
+      <p class="map-hint">Click on the map to set the property's exact location</p>
+      <div id="map-picker"></div>
+      <div class="coords-row">
+        <div class="form-group">
+          <label>Latitude</label>
+          <input type="text" name="latitude" id="lat-input" value="{{ form.latitude.value|default:'' }}" placeholder="Auto-filled from map">
+        </div>
+        <div class="form-group">
+          <label>Longitude</label>
+          <input type="text" name="longitude" id="lng-input" value="{{ form.longitude.value|default:'' }}" placeholder="Auto-filled from map">
+        </div>
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div class="form-card">
+      <h2>📸 Property Images</h2>
+      <div class="form-group">
+        <label>Upload Images (JPG/PNG, max 5MB each)</label>
+        <input type="file" name="images" multiple accept="image/*">
+        <p style="color:var(--gray); font-size:0.8rem; margin-top:0.3rem;">First image will be the cover photo</p>
+      </div>
+      {% if property and property.images.all %}
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem;">
+          {% for img in property.images.all %}
+            <img src="{{ img.image.url }}" style="width:80px; height:60px; object-fit:cover; border-radius:8px;">
+          {% endfor %}
+        </div>
+        <p style="color:var(--gray); font-size:0.8rem; margin-top:0.5rem;">Existing images shown above. Upload new ones to add more.</p>
+      {% endif %}
+    </div>
+
+    <!-- Submit -->
+    <div style="display:flex; gap:1rem;">
+      <button type="submit" class="btn btn-primary">{{ action }} Listing</button>
+      <a href="{% url 'listings:agent_dashboard' %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+// Map picker with draggable marker
+const initLat = parseFloat(document.getElementById('lat-input').value) || 9.0765;
+const initLng = parseFloat(document.getElementById('lng-input').value) || 7.3986;
+
+const map = L.map('map-picker').setView([initLat, initLng], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+let marker = null;
+
+// If existing coords, place marker
+{% if form.latitude.value and form.longitude.value %}
+marker = L.marker([{{ form.latitude.value }}, {{ form.longitude.value }}], {draggable: true}).addTo(map);
+marker.on('dragend', updateCoords);
+{% endif %}
+
+map.on('click', function(e) {
+  const { lat, lng } = e.latlng;
+  if (marker) map.removeLayer(marker);
+  marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+  marker.on('dragend', updateCoords);
+  updateCoordsFromLatLng(lat, lng);
+});
+
+function updateCoords(e) {
+  const { lat, lng } = e.target.getLatLng();
+  updateCoordsFromLatLng(lat, lng);
+}
+function updateCoordsFromLatLng(lat, lng) {
+  document.getElementById('lat-input').value = lat.toFixed(6);
+  document.getElementById('lng-input').value = lng.toFixed(6);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ msg.subject }} – Inbox{% endblock %}
+{% block content %}
+<style>
+  .msg-wrap { max-width:680px; margin:0 auto; }
+  .msg-card { background:var(--white); border-radius:var(--radius); padding:2rem; box-shadow:var(--shadow); }
+  .msg-header { border-bottom:2px solid var(--light-gray); padding-bottom:1.25rem; margin-bottom:1.5rem; }
+  .msg-subject { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:0.5rem; }
+  .msg-meta { color:var(--gray); font-size:0.85rem; }
+  .msg-meta strong { color:var(--dark); }
+  .msg-body-text { line-height:1.7; color:var(--gray); font-size:0.95rem; white-space:pre-wrap; }
+  .prop-ref { background:var(--cream); border-left:3px solid var(--green); padding:0.75rem 1rem; border-radius:0 8px 8px 0; margin-top:1.5rem; font-size:0.88rem; }
+  .back-actions { margin-top:1.5rem; display:flex; gap:0.75rem; }
+</style>
+
+<div class="msg-wrap">
+  <div class="msg-card">
+    <div class="msg-header">
+      <div class="msg-subject">{{ msg.subject }}</div>
+      <div class="msg-meta">
+        From <strong>{{ msg.sender.username }}</strong> &nbsp;·&nbsp;
+        {{ msg.timestamp|date:"M j, Y H:i" }}
+      </div>
+    </div>
+    <div class="msg-body-text">{{ msg.body }}</div>
+    {% if msg.property_ref %}
+    <div class="prop-ref">
+      🏠 Re: <a href="{% url 'listings:property_detail' msg.property_ref.pk %}" style="color:var(--green); font-weight:600;">{{ msg.property_ref.title }}</a>
+    </div>
+    {% endif %}
+  </div>
+  <div class="back-actions">
+    <a href="{% url 'users:inbox' %}" class="btn btn-outline">← Back to Inbox</a>
+    <a href="{% url 'users:send_message' msg.sender.pk %}" class="btn btn-primary">↩ Reply</a>
+  </div>
+</div>
+{% endblock %}

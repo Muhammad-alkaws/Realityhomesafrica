@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Inbox – RealityHomesAfrica{% endblock %}
+{% block content %}
+<style>
+  h1 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:1.5rem; }
+  .msg-list { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+  .msg-item {
+    display:flex; align-items:center; gap:1rem;
+    padding:1rem 1.25rem; border-bottom:1px solid #f3f4f6;
+    text-decoration:none; color:var(--dark);
+    transition:background 0.15s;
+  }
+  .msg-item:last-child { border-bottom:none; }
+  .msg-item:hover { background:var(--cream); }
+  .msg-item.unread { background:#f0fdf4; }
+  .msg-avatar {
+    width:44px; height:44px; border-radius:50%;
+    background:var(--green); color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1rem; flex-shrink:0;
+  }
+  .msg-body { flex:1; min-width:0; }
+  .msg-from { font-weight:600; font-size:0.9rem; }
+  .msg-item.unread .msg-from { font-weight:800; }
+  .msg-subject { font-size:0.85rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .msg-item.unread .msg-subject { color:var(--dark); font-weight:600; }
+  .msg-time { color:var(--gray); font-size:0.78rem; flex-shrink:0; }
+  .unread-dot { width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; }
+</style>
+
+<h1>📬 Inbox</h1>
+
+{% if messages_list %}
+<div class="msg-list">
+  {% for msg in messages_list %}
+  <a href="{% url 'users:message_detail' msg.pk %}" class="msg-item {% if not msg.is_read %}unread{% endif %}">
+    <div class="msg-avatar">{{ msg.sender.username|slice:":1"|upper }}</div>
+    <div class="msg-body">
+      <div class="msg-from">{{ msg.sender.username }}</div>
+      <div class="msg-subject">{{ msg.subject }} {% if msg.property_ref %}— re: {{ msg.property_ref.title|truncatechars:20 }}{% endif %}</div>
+    </div>
+    <div class="msg-time">{{ msg.timestamp|timesince }} ago</div>
+    {% if not msg.is_read %}<div class="unread-dot"></div>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+  <div style="text-align:center; padding:3rem; background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); color:var(--gray);">
+    <div style="font-size:2.5rem; margin-bottom:0.75rem;">📭</div>
+    <p>Your inbox is empty.</p>
+  </div>
+{% endif %}
+{% endblock %}

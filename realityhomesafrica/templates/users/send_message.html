@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Send Message{% endblock %}
+{% block content %}
+<style>
+  .compose-wrap { max-width:580px; margin:0 auto; }
+  .compose-wrap h1 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:0.25rem; }
+  .to-tag { background:var(--light-gray); border-radius:99px; padding:0.2rem 0.75rem; font-size:0.82rem; font-weight:700; margin-bottom:1.5rem; display:inline-block; }
+  .compose-card { background:var(--white); border-radius:var(--radius); padding:2rem; box-shadow:var(--shadow); }
+  .btn-full { width:100%; padding:0.75rem; font-size:1rem; }
+</style>
+
+<div class="compose-wrap">
+  <h1>Send Message</h1>
+  <span class="to-tag">To: {{ receiver.username }} ({{ receiver.get_role }})</span>
+  {% if property_ref %}
+    <p style="color:var(--gray); margin-bottom:1rem; font-size:0.88rem;">📎 Re: <strong>{{ property_ref.title }}</strong></p>
+  {% endif %}
+  <div class="compose-card">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <div style="display:flex; gap:0.75rem; margin-top:0.5rem;">
+        <button type="submit" class="btn btn-primary btn-full">Send Message</button>
+        <a href="{% url 'users:inbox' %}" class="btn btn-outline" style="white-space:nowrap;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
